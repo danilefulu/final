@@ -1,0 +1,125 @@
+
+//import processing.sound.*;
+//SoundFile file;
+
+//inserts font
+PFont klint;
+
+
+import ddf.minim.*;
+Minim minim;
+
+AudioPlayer sound;
+
+
+
+PImage img; 
+XML[] titleXMLElements ;
+
+int startLoop=0; 
+int endLoop=10; 
+int maxLoop=2000;
+int numberdisplayed;
+
+float z = 0.0 ;
+
+boolean done = false;
+
+void setup() { 
+  size(1000, 1000, P3D); 
+  //file = new SoundFile(this, "android.mp3");
+  //file.loop();
+  
+  //adds font to program
+   klint = createFont("KlintStd-Regular",32);
+   textFont(klint);
+   
+   
+  //declares sound
+  minim = new Minim(this);
+  sound = minim.loadFile("not_ping.mp3");
+  
+  
+  textMode(MODEL); 
+  String url = "https://twitrss.me/twitter_user_to_rss/?user=cnnbrk&replies=on"; 
+  XML rss = loadXML(url); 
+  titleXMLElements = rss.getChildren("channel/item/title"); 
+  for (int i = 0; i < titleXMLElements.length; i++) { 
+    String title = titleXMLElements[i].getContent(); 
+    println(i + ": " + title);
+  }   
+  maxLoop=titleXMLElements.length;
+ 
+}
+  
+ 
+
+void draw() {
+  
+  sound.play();//plays sound
+ 
+  background(0);
+
+  lights();
+
+  pushMatrix(); 
+  translate(width/2, 500, -80); 
+  //rotateX(z);
+  //rotateY(z);
+
+  // fill(255, 255, 255); 
+  //fill(0); 
+  //stroke(255); 
+  //box(800, 800, 10);
+
+  translate(-506, -359, 66); 
+  fill(255); //coloroftext
+  text("",0,30);//DISPLAYS FONT
+  //textSize(30);
+
+//spacing of info
+  int lineCounter=0; 
+  for (int i = startLoop; i < numberdisplayed; i++) { 
+    String title = titleXMLElements[i].getContent(); 
+    text( title, 9, lineCounter * 39 ); // display
+    lineCounter++;
+  } 
+  
+  displayLinesPeriodically();
+  
+  z = (z + .01)%TWO_PI;
+
+  if (round(z)==2.0&&!done) {
+    println ("Here 1"); 
+    startLoop+=10; 
+    endLoop+=10;
+    done = true; 
+    if (endLoop>=maxLoop) { 
+      endLoop=maxLoop-10;
+      startLoop=endLoop-10;
+    }
+  } else if (round(z)==6.0&&done) {
+    done = false;
+  }
+
+  popMatrix();
+  text(z, 10, 84);
+}
+
+void displayLinesPeriodically(){
+  if (frameCount % 10 == 0){
+    if (numberdisplayed >= endLoop){
+      numberdisplayed = 1;
+    } else {
+    numberdisplayed++;
+    }
+  }
+} // end displayLinesPeriodically()
+
+void keyPressed(){
+  background(255,0,0);
+  sound.loop();//restarts the sound
+  startLoop += 1;
+  redraw();
+}//restart
+ 
